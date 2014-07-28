@@ -6,33 +6,28 @@ from matplotlib import pyplot as plt
 
 class AnalogData:
   def __init__(self, maxLen):
-    self.ay = np.array([0.0])
+    self.ay = np.zeros((1,6))
     self.maxLen = maxLen
 
-  def addToBuf(self, buf, val):
-    if buf.size < self.maxLen:
-      buf = np.hstack((buf, val))
-    else:
-      buf = buf[1:]
-      buf = np.hstack((buf, val))
-
   def add(self, data):
-    self.addToBuf(self.ay, data)
-    if self.ay.size < self.maxLen:
-      self.ay = np.hstack((self.ay, data))
+    if self.ay.shape[0] < self.maxLen:
+      self.ay = np.vstack((self.ay, data))
     else:
       self.ay = self.ay[1:]
-      self.ay = np.hstack((self.ay, data))
+      self.ay = np.vstack((self.ay, data))
 
 class AnalogPlot: 
   def __init__(self, analogData):
-    plt.ion() 
-    self.aline, = plt.plot(range(analogData.ay.size), analogData.ay)
-    plt.axis([0, analogData.maxLen, 0, 100])
+    plt.ion()
+    self.alines = []
+    for i in range(analogData.ay.shape[1]):
+      self.alines.append(plt.plot(range(analogData.ay.shape[0]), analogData.ay[:,i])[0])
+    plt.axis([0, analogData.maxLen, 0, 600])
 
   def update(self, analogData):
-    self.aline.set_xdata(range(analogData.ay.size))
-    self.aline.set_ydata(analogData.ay)
+    for i in range(analogData.ay.shape[1]):
+      self.alines[i].set_xdata(range(analogData.ay.shape[0]))
+      self.alines[i].set_ydata(analogData.ay[:,i])
     plt.draw()
 
 def main():
@@ -41,19 +36,27 @@ def main():
     line = sys.stdin.readline()
     if not line:
       break
-    data = [float(val) for val in line.split()]
+    data = np.array([float(val) for val in line.split()])
+    data += np.array([50, 150, 250, 350, 450, 550])
+    #if not created_vars:
+    #  analogPlots = []
+    #  analogDatas = []
+    #  for i in range(len(data)):
+    #    plt.figure(i)
+    #    analogDatas.append(AnalogData(100))
+    #    analogPlots.append(AnalogPlot(analogDatas[i]))
+    #  created_vars = True
+    #for i in range(len(data)):
+    #  plt.figure(i)
+    #  analogDatas[i].add(data[i])
+    #  analogPlots[i].update(analogDatas[i])
+    
     if not created_vars:
-      analogPlots = []
-      analogDatas = []
-      for i in range(len(data)):
-        plt.figure(i)
-        analogDatas.append(AnalogData(100))
-        analogPlots.append(AnalogPlot(analogDatas[i]))
+      analogData = AnalogData(300)
+      analogPlot = AnalogPlot(analogData)
       created_vars = True
-    for i in range(len(data)):
-      plt.figure(i)
-      analogDatas[i].add(data[i])
-      analogPlots[i].update(analogDatas[i])
+    analogData.add(data)
+    analogPlot.update(analogData)
 
 if __name__ == '__main__':
   main()
