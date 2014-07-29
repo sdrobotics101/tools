@@ -22,7 +22,7 @@ class AnalogPlot:
     self.alines = []
     for i in range(analogData.ay.shape[1]):
       self.alines.append(plt.plot(range(analogData.ay.shape[0]), analogData.ay[:,i])[0])
-    plt.axis([0, analogData.maxLen, 0, 600])
+    plt.axis([0, analogData.maxLen, 0, 120])
 
   def update(self, analogData):
     for i in range(analogData.ay.shape[1]):
@@ -37,7 +37,7 @@ def main():
     if not line:
       break
     data = np.array([float(val) for val in line.split()])
-    data += np.array([50, 150, 250, 350, 450, 550])
+    data += np.array([10, 30, 50, 70, 90, 110])
     #if not created_vars:
     #  analogPlots = []
     #  analogDatas = []
